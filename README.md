@@ -17,3 +17,7 @@ Repository → Settings → Pages → "Deploy from a branch" → branch `main`, 
 
 ## Publiceren via Netlify
 Netlify → Add new site → Import an existing project → GitHub → `jwvkekem/HiddenGems`. Geen build-commando nodig; publicatiemap is de hoofdmap (staat in `netlify.toml`). Elke push naar `main` zet automatisch een nieuwe versie online.
+
+## Develop-omgeving
+- Branch `develop` wordt door Netlify apart gepubliceerd op `https://develop--hiddengemsdordrecht.netlify.app`.
+- Werkwijze: wijzigingen eerst naar `develop`, testen op het develop-adres, daarna via een pull request van `develop` naar `main` live zetten.
