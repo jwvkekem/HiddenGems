@@ -21,8 +21,16 @@ function sparkle(cx, cy, r) {
   const k = r * 0.22;
   return `<path d="M${cx} ${cy - r} Q${cx + k} ${cy - k} ${cx + r} ${cy} Q${cx + k} ${cy + k} ${cx} ${cy + r} Q${cx - k} ${cy + k} ${cx - r} ${cy} Q${cx - k} ${cy - k} ${cx} ${cy - r}Z" fill="#FFF8EA"/>`;
 }
+// Label over het icoon, bijv. "DEVELOP" (voor de develop-site).
+function badgeSvg(S, text, y, w) {
+  if (!text) return "";
+  const h = S * 0.16, fs = text.length > 3 ? h * 0.56 : h * 0.7;
+  return `<g><rect x="${(S - w) / 2}" y="${y - h / 2}" width="${w}" height="${h}" rx="${h / 2}" fill="#E4572E" stroke="#FFF8EA" stroke-width="${S * 0.012}"/>
+<text x="${S / 2}" y="${y}" dy=".35em" text-anchor="middle" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="${fs}" letter-spacing="${fs * 0.06}" fill="#FFFFFF">${text}</text></g>`;
+}
 // Volledig app-icoon (512x512). scale: aandeel van de breedte voor de gem (kleiner voor 'maskable').
-function iconSvg(scale = 0.66, rounded = false) {
+// badge: optioneel label; maskable: label binnen de veilige zone houden.
+function iconSvg(scale = 0.66, rounded = false, badge = "", maskable = false) {
   const S = 512, w = S * scale, x = (S - w) / 2, h = w * 0.95, y = (S - h) / 2 + S * 0.02;
   const rx = rounded ? 112 : 0;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${S} ${S}" width="${S}" height="${S}">
@@ -31,6 +39,7 @@ function iconSvg(scale = 0.66, rounded = false) {
 <ellipse cx="${S / 2}" cy="${y + h + S * 0.035}" rx="${w * 0.36}" ry="${S * 0.022}" fill="#0B2A25" opacity=".45"/>
 ${gemPaths(x, y, w)}
 ${sparkle(x + w * 0.9, y - w * 0.04, w * 0.11)}${sparkle(x + w * 0.06, y + w * 0.52, w * 0.055)}
+${maskable ? badgeSvg(S, badge, S * 0.73, S * 0.6) : badgeSvg(S, badge, S * 0.8, S * 0.8)}
 </svg>`;
 }
 module.exports = { gemPaths, iconSvg };

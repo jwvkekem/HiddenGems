@@ -12,10 +12,23 @@ const dist = path.join(root, "dist");
 fs.rmSync(dist, { recursive: true, force: true });
 fs.cpSync(path.join(root, "web"), dist, { recursive: true });
 
+// Develop-site (Netlify branch deploy / deploy preview): iconen met "DEVELOP"-label en eigen naam
+const isDevelop = !!process.env.CONTEXT && process.env.CONTEXT !== "production";
+fs.rmSync(path.join(dist, "icons-develop"), { recursive: true, force: true });
+if (isDevelop) {
+  fs.cpSync(path.join(root, "web", "icons-develop"), path.join(dist, "icons"), { recursive: true });
+  const mf = path.join(dist, "manifest.webmanifest");
+  const m = JSON.parse(fs.readFileSync(mf, "utf8"));
+  m.name = "Hidden Gems Dordrecht (Develop)";
+  m.short_name = "HG Develop";
+  fs.writeFileSync(mf, JSON.stringify(m, null, 2));
+}
+
 const version = fs.readFileSync(path.join(root, "VERSION"), "utf8").trim();
-const build = process.env.COMMIT_REF || "local-" + Date.now();
-const info = { build, version };
-fs.writeFileSync(path.join(dist, "version.json"), JSON.stringify(info, null, 2));
+// Versie-ID = vingerafdruk van wat bezoekers krijgen; verandert alleen als de pagina echt verandert
+// (zo komt er geen update-melding bij een publicatie zonder zichtbare wijziging).
+const BUILD_PLACEHOLDER = "__HG_BUILD_ID__";
+const info = { build: BUILD_PLACEHOLDER, version };
 
 const gem = (cls) => `<svg ${cls ? `class="${cls}" ` : ""}viewBox="0 0 100 96" aria-hidden="true">${gemPaths(2, 2, 96)}</svg>`;
 
@@ -34,7 +47,7 @@ const head = `
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Hidden Gems">
+<meta name="apple-mobile-web-app-title" content="${isDevelop ? "HG Develop" : "Hidden Gems"}">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="theme-color" content="#EEF1EE" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#0F1614" media="(prefers-color-scheme: dark)">
@@ -67,6 +80,7 @@ const head = `
 #hg-update .hgu-l{background:none;border:1px solid var(--line,#D3DBD6);color:var(--ink,#13241F)}
 </style>
 `;
+if (isDevelop) html = html.replace("<title>Hidden Gems Dordrecht</title>", "<title>Hidden Gems · Develop</title>");
 must(html.split("</head>").length === 2, "</head>");
 html = html.replace("</head>", head + "</head>");
 
@@ -91,5 +105,9 @@ must(html.lastIndexOf("</body>") > 0, "</body>");
 const bi = html.lastIndexOf("</body>");
 html = html.slice(0, bi) + tail + html.slice(bi);
 
+const crypto = require("crypto");
+const build = crypto.createHash("sha256").update(html).update(fs.readFileSync(path.join(dist, "update.js"))).digest("hex").slice(0, 16);
+html = html.replace(BUILD_PLACEHOLDER, build);
+fs.writeFileSync(path.join(dist, "version.json"), JSON.stringify({ build, version }, null, 2));
 fs.writeFileSync(path.join(dist, "index.html"), html);
-console.log("Klaar: dist/ (v" + version + ", " + build + ")");
+console.log("Klaar: dist/ (v" + version + ", " + build + (isDevelop ? ", develop" : "") + ")");
