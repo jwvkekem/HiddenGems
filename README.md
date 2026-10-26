@@ -3,20 +3,22 @@
 Een app voor toeristen in Dordrecht met verborgen pareltjes: eten & drinken, zien & doen, winkelen, overnachten en events. Teksten in NL / EN / DE / FR.
 
 ## Wat zit erin
-- `index.html` – de complete app in één bestand (HTML, CSS en JavaScript), inclusief een ingebouwde kopie van de gegevens (zaken, events, kenmerken en foto's).
+- `app.html` – de app zoals op claude.ai (HTML, CSS en JavaScript in één bestand, met een ingebouwde kopie van de gegevens). **Niet met de hand aanpassen**: bij een nieuwe versie van claude.ai vervang je alleen dit bestand.
+- `web/` – extra's voor de website: app-icoon (`icons/`), `manifest.webmanifest` (installeren op het startscherm) en `update.js` (melding bij een nieuwe versie).
+- `updates.json` – "wat is er nieuw". Zet bovenaan een nieuw item met een nieuwe `id` als je iets wilt melden; dat tekstje verschijnt in de update-melding.
+- `tools/build.js` – maakt de site in `dist/`: voegt icoon, laad-animatie (draaiende gem), snelle start en update-melding aan `app.html` toe. Netlify draait dit automatisch.
+- `tools/make-icons.js` – maakt de iconen opnieuw (alleen nodig als het icoon verandert; vereist Playwright).
 
 ## Zo werkt het
 - **Op claude.ai (ingelogd):** de app leest en bewaart de gegevens live en heeft een Beheer-scherm.
-- **Buiten claude.ai (bijv. GitHub Pages of lokaal openen):** de app toont de ingebouwde kopie van de gegevens. Bekijken, zoeken, filteren, de planner en de cruise-route werken; wijzigingen in Beheer worden hier niet opgeslagen.
+- **Op de website (Netlify):** de app start meteen met de ingebouwde kopie van de gegevens. Bekijken, zoeken, filteren, de planner en de cruise-route werken; Beheer is hier niet beschikbaar.
+- **Update-melding:** de site kijkt bij openen, bij terugkeren naar de app en elke 5 minuten of er een nieuwere versie online staat. Zo ja, dan verschijnt een melding met "Verversen".
 
 ## Lokaal bekijken
-Open `index.html` in een browser.
-
-## Online zetten met GitHub Pages
-Repository → Settings → Pages → "Deploy from a branch" → branch `main`, map `/ (root)`.
+`node tools/build.js` en open daarna `dist/index.html`, of start een webserver in `dist/`.
 
 ## Publiceren via Netlify
-Netlify → Add new site → Import an existing project → GitHub → `jwvkekem/HiddenGems`. Geen build-commando nodig; publicatiemap is de hoofdmap (staat in `netlify.toml`). Elke push naar `main` zet automatisch een nieuwe versie online.
+Netlify draait `node tools/build.js` en publiceert `dist/` (zie `netlify.toml`). Elke push naar `main` gaat live.
 
 ## Develop-omgeving
 - Branch `develop` wordt door Netlify apart gepubliceerd op `https://develop--hiddengemsdordrecht.netlify.app`.
