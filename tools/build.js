@@ -1,6 +1,7 @@
 // Bouwt de site voor Netlify in dist/:
 //  - app.html (de app zoals op claude.ai, ongewijzigd) + icoon, laad-animatie, snelle start en update-melding
-//  - version.json (welke versie er online staat + laatste "wat is er nieuw" uit updates.json)
+//  - versienummer uit VERSION in de app zetten (in plaats van het nummer uit app.html)
+//  - version.json (welke versie er online staat, voor de update-melding)
 // Netlify draait dit automatisch (zie netlify.toml). Lokaal: node tools/build.js
 const fs = require("fs");
 const path = require("path");
@@ -11,16 +12,19 @@ const dist = path.join(root, "dist");
 fs.rmSync(dist, { recursive: true, force: true });
 fs.cpSync(path.join(root, "web"), dist, { recursive: true });
 
-const updates = JSON.parse(fs.readFileSync(path.join(root, "updates.json"), "utf8"));
-const notes = updates[0] || null;
+const version = fs.readFileSync(path.join(root, "VERSION"), "utf8").trim();
 const build = process.env.COMMIT_REF || "local-" + Date.now();
-const info = { build, notesId: notes ? notes.id : null };
-fs.writeFileSync(path.join(dist, "version.json"), JSON.stringify({ build, notes }, null, 2));
+const info = { build, version };
+fs.writeFileSync(path.join(dist, "version.json"), JSON.stringify(info, null, 2));
 
 const gem = (cls) => `<svg ${cls ? `class="${cls}" ` : ""}viewBox="0 0 100 96" aria-hidden="true">${gemPaths(2, 2, 96)}</svg>`;
 
 let html = fs.readFileSync(path.join(root, "app.html"), "utf8");
 const must = (cond, what) => { if (!cond) throw new Error("app.html heeft een onverwachte opbouw: " + what); };
+
+// 0. Versienummer onderaan de app
+must(/Prototype v[0-9.]+/.test(html), "versienummer");
+html = html.replace(/Prototype v[0-9.]+/, "Prototype v" + version);
 
 // 1. Icoon, thema-kleur en installeerbare app (in <head>)
 const head = `
@@ -56,7 +60,7 @@ const head = `
 #hg-update .hgu-ic svg{width:100%;height:100%}
 #hg-update .hgu-tx{display:flex;flex-direction:column;gap:4px;min-width:0;font-size:14px;line-height:1.4}
 #hg-update b{font-family:var(--f-display,Georgia,serif);font-weight:400;font-size:17px}
-#hg-update em{font-style:normal;font-weight:600}
+#hg-update b small{font-family:var(--f-mono,ui-monospace,monospace);font-size:12px;color:var(--muted,#56665F);margin-left:4px}
 #hg-update .hgu-bt{display:flex;gap:8px;margin-top:6px}
 #hg-update button{border-radius:999px;padding:8px 16px;font:inherit;font-weight:600;font-size:14px;min-height:38px;cursor:pointer}
 #hg-update .hgu-r{background:var(--gold,#B9811F);color:#1b1407;border:0}
@@ -88,4 +92,4 @@ const bi = html.lastIndexOf("</body>");
 html = html.slice(0, bi) + tail + html.slice(bi);
 
 fs.writeFileSync(path.join(dist, "index.html"), html);
-console.log("Klaar: dist/ (versie " + build + ")");
+console.log("Klaar: dist/ (v" + version + ", " + build + ")");

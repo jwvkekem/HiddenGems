@@ -5,8 +5,8 @@ Een app voor toeristen in Dordrecht met verborgen pareltjes: eten & drinken, zie
 ## Wat zit erin
 - `app.html` – de app zoals op claude.ai (HTML, CSS en JavaScript in één bestand, met een ingebouwde kopie van de gegevens). **Niet met de hand aanpassen**: bij een nieuwe versie van claude.ai vervang je alleen dit bestand.
 - `web/` – extra's voor de website: app-icoon (`icons/`), `manifest.webmanifest` (installeren op het startscherm) en `update.js` (melding bij een nieuwe versie).
-- `updates.json` – "wat is er nieuw". Zet bovenaan een nieuw item met een nieuwe `id` als je iets wilt melden; dat tekstje verschijnt in de update-melding.
-- `tools/build.js` – maakt de site in `dist/`: voegt icoon, laad-animatie (draaiende gem), snelle start en update-melding aan `app.html` toe. Netlify draait dit automatisch.
+- `VERSION` – het versienummer van de website (bijv. `0.9`). Verhoog dit bij een update; het verschijnt onderaan de app en in de update-melding.
+- `tools/build.js` – maakt de site in `dist/`: zet het versienummer uit `VERSION` in de app en voegt icoon, laad-animatie (draaiende gem), snelle start en update-melding aan `app.html` toe. Netlify draait dit automatisch.
 - `tools/make-icons.js` – maakt de iconen opnieuw (alleen nodig als het icoon verandert; vereist Playwright).
 
 ## Zo werkt het
