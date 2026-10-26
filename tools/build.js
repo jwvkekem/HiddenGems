@@ -39,6 +39,18 @@ const must = (cond, what) => { if (!cond) throw new Error("app.html heeft een on
 must(/Prototype v[0-9.]+/.test(html), "versienummer");
 html = html.replace(/Prototype v[0-9.]+/, "Prototype v" + version);
 
+// 0b. Actuele gegevens: data/snapshot.json (export van de database op claude.ai) vervangt de oudere
+//     kopie die in app.html is ingebouwd.
+const snapFile = path.join(root, "data", "snapshot.json");
+if (fs.existsSync(snapFile)) {
+  const marker = "<script>window.HG_FALLBACK=";
+  const a = html.indexOf(marker);
+  must(a > 0, "HG_FALLBACK");
+  const b = html.indexOf("</script>", a);
+  const snap = JSON.stringify(JSON.parse(fs.readFileSync(snapFile, "utf8"))).replace(/<\//g, "<\\/");
+  html = html.slice(0, a) + marker + snap + ";" + html.slice(b);
+}
+
 // 1. Icoon, thema-kleur en installeerbare app (in <head>)
 const head = `
 <link rel="manifest" href="manifest.webmanifest">
